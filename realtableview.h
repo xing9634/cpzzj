@@ -8,8 +8,8 @@ class RealTableView : public QTableView
 public:
     RealTableView(QWidget *parent = 0);
     ~RealTableView(){}
-    QPointF line1[8][3];
-    QPointF line2[8][3];
+    QPointF line1[32][3];
+    QPointF line2[32][3];
     int columncount;
     int rowcount;
     int colored;

@@ -31,14 +31,17 @@ SOURCES += \
     corekernel.cpp \
     sqlconnector.cpp \
     qmysqlquerymodel.cpp \
-    realtableview.cpp
+    realtableview.cpp \
+    realqthread.cpp
 
 HEADERS += \
         mainwindow.h \
     corekernel.h \
     sqlconnector.h \
     qmysqlquerymodel.h \
-    realtableview.h
+    realtableview.h \
+    realqthread.h \
+    matrix.h
 
 FORMS += \
         mainwindow.ui

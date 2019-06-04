@@ -2,11 +2,8 @@
 
 SQLConnector::SQLConnector()
 {
-    db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("localhost");
-    db.setDatabaseName("zhongjiang");
-    db.setUserName("root");
-    db.setPassword("Dp448283676");
+    db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("./zhongjiang.db");
     db.open();
 }
 

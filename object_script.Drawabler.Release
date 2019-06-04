@@ -1,0 +1,14 @@
+INPUT(
+./release\main.o
+./release\mainwindow.o
+./release\corekernel.o
+./release\sqlconnector.o
+./release\qmysqlquerymodel.o
+./release\realtableview.o
+./release\realqthread.o
+./release\qrc_style.o
+./release\moc_mainwindow.o
+./release\moc_corekernel.o
+./release\moc_realtableview.o
+./release\moc_realqthread.o
+);

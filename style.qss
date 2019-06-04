@@ -1,0 +1,5 @@
+QTableView
+{
+        background-color: rgb(255, 255, 245);
+        alternate-background-color: rgb(245, 245, 245);
+}

@@ -1,628 +1,406 @@
-#include"corekernel.h"
 #include<iostream>
 #include "mainwindow.h"
 #include"qtableview.h"
+#include<string.h>
+using namespace std;
+#define DRAGON start - (MAXSIZE + gap) * cmp - 3
+#define DRAGON2 start - (MAXSIZE + gap) * 1 - 3
+
 using namespace std;
 //算法部分
-int Drawabler::OneToOne(int num,int start,int gap,int cmp,int pos)
-{
-    for(int i = 0;i<MAXSIZE-1;i++)
-        {
-            for(int j = 0;j<MAXSIZE;j++)
-            {
-                if(is_way(num,start,gap,cmp,1,i,j,3,pos,-1,-1,-1,-1,-1,-1,-1,-1))
-                {
-                       str1[0] = maper[i][j];
-                       str2[0] = maper[3][pos];
-                       return 1;
-                }
-            }
+
+void Drawabler::make_mat(int col,matrix matb) {
+    for(int i = col;i < MAXSIZE + col;i ++) {
+        for(int j = 0;j < MAXSIZE;j ++) {
+            mat1.array[i - col][j] = matb.array[i][j];
+            qDebug()<<matb.array[i][j];
         }
-        return -1;
+        qDebug()<<" ";
+    }
+    qDebug()<<"cykablabnskldhnakosjdioasjdklasjdoksajdklasjdklasjdklasjdklasjdklsajlkdsajkldjaskldjsakldajskld";
+}
+void Drawabler::make_matfirst(int col,matrix matb) {
+    for(int i = col;i < MAXSIZE - 1 + col;i ++) {
+        for(int j = 0;j < MAXSIZE;j ++) {
+            mat1.array[i - col][j] = matb.array[i][j];
+        }
+    }
 }
 
-int Drawabler::OneToTwo(int num,int start,int gap,int cmp,int pos)
-{
-    for(int i = 0;i<MAXSIZE-1;i++)
-        {
-            for(int j = 0;j<MAXSIZE;j++)
-            {
-                for(int k = 0;k<MAXSIZE-1;k++)
-                {
-                    for(int m = 0;m<MAXSIZE;m++)
-                    {
-                        if(i == k&&j==m)
-                            continue;
-                        if(is_way(num,start,gap,cmp,2,i,j,k,m,3,pos,-1,-1,-1,-1,-1,-1))
+int Drawabler::maptoi(int num){
+    int k = 1;
+    for(int i = 0;i <4;i++ ){
+        for(int j = 0;j <4;j ++) {
+            if(k == num) {
+                return i;
+            }
+            k ++;
+        }
+    }
+    return -1;
+}
+
+int Drawabler::maptoj(int num){
+    int k = 1;
+    for(int i = 0;i <4;i++ ){
+        for(int j = 0;j <4;j ++) {
+            if(k == num) {
+                return j;
+            }
+            k ++;
+        }
+    }
+    return -1;
+}
+
+
+bool Drawabler::Find(QSqlDatabase db,int gap,int start,matrix matb,int mode) {
+    int cmp = 2;
+    for(int i = 0;i <= 9;i ++) {
+        memset(this->str1,-1,sizeof(this->str1));
+        memset(this->str2,-1,sizeof(this->str2));
+        for(int j = 1;j <= 12; j++) { //1:1
+            make_matfirst(start - 3,matb);
+            int ti = maptoi(j);
+            int tj = maptoj(j);
+            bool o1 = i == mat1.array[ti][tj];
+            for(int k = 0;k < 4;k ++) {
+                make_mat(DRAGON2,matb);
+                if(o1 && mat1.array[ti][tj] == mat1.array[3][k]){
+                    while(DRAGON >= 0) {
+                        qDebug()<<"|csacasca";
+                        make_mat(DRAGON,matb);
+                        if(mat1.array[ti][tj] == mat1.array[3][k])
                         {
-                               str1[0] = maper[i][j];
-                               str2[0] = maper[k][m];
-                               str2[1] = maper[3][pos];
-                               return 1;
+
+                            cmp++;
+                        } else {
+                            break;
                         }
                     }
+                    str1[0] = k + 13;
+                    str1[1] = -1;
+                    str1[2] = -1;
+                    str2[0] = j;
+                    str2[1] = -1;
+                    str2[2] = -1;
+                    save(db,str1,str2,i,gap,cmp,k,start,mode);
                 }
+                cmp = 2;
+
             }
         }
-        return -1;
-}
+        cmp = 2;
+        for(int j = 1;j <= 12; j++) { //1:2 and 2:1
 
+            for(int ks = j;ks <= 12; ks++) {
+                make_matfirst(start - 3,matb);
+                int ji = maptoi(j);
+                int jj = maptoj(j);
+                int ki = maptoi(ks);
+                int kj = maptoj(ks);
+                if(ks == j) continue ;
+                bool o1 = i == (mat1.array[ji][jj] + mat1.array[ki][kj] + 10) % 10 ;
+                bool o2 = (i + mat1.array[ki][kj] + 10) % 10 == (mat1.array[ji][jj] + 10) % 10 ;
+                for(int k = 0;k < 4;k ++) {
+                    make_mat(DRAGON2,matb);
+                    if(o1 && (mat1.array[ji][jj] + mat1.array[ki][kj] + 10) % 10  == mat1.array[3][k]) {
 
-int Drawabler::OneToThree(int num,int start,int gap,int cmp,int pos)
-{
-    for(int i = 0;i<MAXSIZE-1;i++)
-        {
-            for(int j = 0;j<MAXSIZE;j++)
-            {
-                for(int k = 0;k<MAXSIZE-1;k++)
-                {
-                    for(int m = 0;m<MAXSIZE;m++)
-                    {
-                        if(i == k&&j==m)
-                            continue;
-                        for(int n = 0;n<MAXSIZE-1;n++)
-                        {
-                            for(int o = 0;o<MAXSIZE;o++)
+                        while(DRAGON >= 0) {
+                            make_mat(DRAGON,matb);
+                            if((mat1.array[ji][jj] + mat1.array[ki][kj] + 10) % 10  == mat1.array[3][k])
                             {
-                                if(i == n&&j== o)
-                                    continue;
-                                if(k == n&&m == o)
-                                    continue;
-                                if(is_way(num,start,gap,cmp,3,i,j,k,m,n,o,3,pos,-1,-1,-1,-1))
-                                {
-                                       str1[0] = maper[i][j];
-                                       str2[0] = maper[k][m];
-                                       str2[1] = maper[n][o];
-                                       str2[2] = maper[3][pos];
-                                       return 1;
-                                }
+
+                                cmp++;
+                            } else {
+                                break;
                             }
                         }
+                        str1[0] = k + 13;
+                        str1[1] = -1;
+                        str1[2] = -1;
+                        str2[0] = ks;
+                        str2[1] = j;
+                        str2[2] = -1;
+                        save(db,str1,str2,i,gap,cmp,k,start,mode);
                     }
-                }
-            }
-        }
-        return -1;
-}
+                    cmp = 2;
 
-int Drawabler::TwoToOne(int num,int start,int gap,int cmp,int pos)
-{
-    for(int i = 0;i<MAXSIZE-1;i++)
-        {
-            for(int j = 0;j<MAXSIZE;j++)
-            {
-                for(int k = 0;k<MAXSIZE-1;k++)
-                {
-                    for(int m = 0;m<MAXSIZE;m++)
-                    {
-                        if(i == k&&j==m)
-                            continue;
-                        if(is_way(num,start,gap,cmp,4,i,j,k,m,3,pos,-1,-1,-1,-1,-1,-1))
-                        {
-                               str1[0] = maper[i][j];
-                               str1[1] = maper[k][m];
-                               str2[0] = maper[3][pos];
-                               return 1;
-                        }
-                    }
-                }
-            }
-        }
-        return -1;
-}
-
-int Drawabler::TwoToTwo(int num,int start,int gap,int cmp,int pos)
-{
-    for(int i = 0;i<MAXSIZE-1;i++)
-        {
-            for(int j = 0;j<MAXSIZE;j++)
-            {
-                for(int k = 0;k<MAXSIZE-1;k++)
-                {
-                    for(int m = 0;m<MAXSIZE;m++)
-                    {
-                        if(i == k&&j==m)
-                            continue;
-                        for(int n = 0;n<MAXSIZE-1;n++)
-                        {
-                            for(int o = 0;o<MAXSIZE;o++)
+                    if(o2 && (mat1.array[3][k] + mat1.array[ki][kj] + 10) % 10  == mat1.array[ji][jj]) {
+                        while(DRAGON >= 0) {
+                            make_mat(DRAGON,matb);
+                            if((mat1.array[3][k] + mat1.array[ki][kj] + 10) % 10  == mat1.array[ji][jj])
                             {
-                                if(i == n&&j== o)
-                                    continue;
-                                if(k == n&&m == o)
-                                    continue;
-                                if(is_way(num,start,gap,cmp,5,i,j,k,m,n,o,3,pos,-1,-1,-1,-1))
-                                {
-                                       str1[0] = maper[i][j];
-                                       str1[1] = maper[k][m];
-                                       str2[0] = maper[n][o];
-                                       str2[1] = maper[3][pos];
-                                       return 1;
-                                }
+
+                                cmp++;
+                            }else {
+                                break;
                             }
                         }
+                        str1[0] = k + 13;
+                        str1[1] = ks;
+                        str1[2] = -1;
+                        str2[0] = j;
+                        str2[1] = -1;
+                        str2[2] = -1;
+                        save(db,str1,str2,i,gap,cmp,k,start,mode);
+                    }
+                    cmp = 2;
+
+                }
+            }
+        }
+        cmp = 2;
+        for(int j = 1;j <= 12; j++) { //3:1 and 1:3 2:2
+
+            for(int ks = j;ks <= 12; ks++) {
+                for(int ps = ks;ps <= 12; ps ++) {
+                    make_matfirst(start - 3,matb);
+                    int ji = maptoi(j);
+                    int jj = maptoj(j);
+                    int ki = maptoi(ks);
+                    int kj = maptoj(ks);
+                    int pi = maptoi(ps);
+                    int pj = maptoj(ps);
+                    if(ks == j) continue ;
+                    if(ks == ps) continue ;
+                    if(ps == j) continue ;
+                    bool o1 = i == (mat1.array[ji][jj] + mat1.array[ki][kj] + mat1.array[pi][pj] + 10) % 10;
+                    bool o2 = (i + mat1.array[pi][pj] + 10) % 10 == (mat1.array[ji][jj] + mat1.array[ki][kj] + 10) % 10 ;
+                    bool o3 = (i + mat1.array[ki][kj] + mat1.array[pi][pj] + 10) % 10== (mat1.array[ji][jj] + 10) % 10 ;
+                    for(int k = 0;k < 4;k ++) {
+                        make_mat(DRAGON2,matb);
+                        if(o1 && (mat1.array[ji][jj] + mat1.array[ki][kj] +  mat1.array[pi][pj] + 10) % 10  == mat1.array[3][k]) {
+                            while(DRAGON >= 0) {
+                                make_mat(DRAGON,matb);
+                                if((mat1.array[ji][jj] + mat1.array[ki][kj] +  mat1.array[pi][pj] + 10) % 10  == mat1.array[3][k])
+                                {
+
+                                    cmp++;
+                                }else {
+                                    break;
+                                }
+                            }
+                            str1[0] = k + 13;
+                            str1[1] = -1;
+                            str2[2] = -1;
+                            str2[0] = ps;
+                            str2[1] = ks;
+                            str2[2] = j;
+                            save(db,str1,str2,i,gap,cmp,k,start,mode);
+                        }
+                        cmp = 2;
+                        if(o2 && (mat1.array[ji][jj] + mat1.array[ki][kj] + 10) % 10  == (mat1.array[3][k] + mat1.array[pi][pj] + 10) % 10) {
+                            while(DRAGON >= 0) {
+                                make_mat(DRAGON,matb);
+                                if((mat1.array[ji][jj] + mat1.array[ki][kj] + 10) % 10  == (mat1.array[3][k] + mat1.array[pi][pj] + 10) % 10)
+                                {
+
+                                    cmp++;
+                                }else {
+                                    break;
+                                }
+                            }
+                            str1[0] = k + 13;
+                            str1[1] = ps;
+                            str1[2] = -1;
+                            str2[0] = ks;
+                            str2[1] = j;
+                            str2[2] = -1;
+                            save(db,str1,str2,i,gap,cmp,k,start,mode);
+                        }
+                        cmp = 2;
+
+                        if(o3 && (mat1.array[ji][jj] + 10) % 10  == mat1.array[3][k] + mat1.array[pi][pj] + mat1.array[ki][kj]) {
+                            while(DRAGON >= 0) {
+                                make_mat(DRAGON,matb);
+                                if((mat1.array[ji][jj] + 10) % 10  == (mat1.array[3][k] + mat1.array[pi][pj] + mat1.array[ki][kj] + 10) % 10)
+                                {
+
+                                    cmp++;
+                                }else {
+                                    break;
+                                }
+                            }
+                            str1[0] = k + 13;
+                            str1[1] = ps;
+                            str1[2] = ks;
+                            str2[0] = j;
+                            str2[1] = -1;
+                            str2[2] = -1;
+                            save(db,str1,str2,i,gap,cmp,k,start,mode);
+                        }
+                        cmp = 2;
+
                     }
                 }
             }
         }
-        return -1;
-}
+        cmp = 2;
+        for(int j = 1;j <= 12; j++) { //3:2 and 2:3
 
-int Drawabler::TwoToThree(int num,int start,int gap,int cmp,int pos)
-{
-    for(int i = 0;i<MAXSIZE-1;i++)
-        {
-            for(int j = 0;j<MAXSIZE;j++)
-            {
-                for(int k = 0;k<MAXSIZE-1;k++)
-                {
-                    for(int m = 0;m<MAXSIZE;m++)
-                    {
-                        if(i == k&&j==m)
-                            continue;
-                        for(int n = 0;n<MAXSIZE-1;n++)
-                        {
-                            for(int o = 0;o<MAXSIZE;o++)
-                            {
-                                if(i == n&&j== o)
-                                    continue;
-                                if(k == n&&m == o)
-                                    continue;
-                                for(int p = 0;p<MAXSIZE-1;p++)
-                                {
-                                    for(int q = 0;q<MAXSIZE;q++)
+            for(int ks = j;ks <= 12; ks++) {
+                for(int ps = ks;ps <= 12; ps ++) {
+                    for(int cs = ps;cs <=12;cs ++) {
+                        make_matfirst(start - 3,matb);
+                        int ji = maptoi(j);
+                        int jj = maptoj(j);
+                        int ki = maptoi(ks);
+                        int kj = maptoj(ks);
+                        int pi = maptoi(ps);
+                        int pj = maptoj(ps);
+                        int ci = maptoi(cs);
+                        int cj = maptoj(cs);
+                        if(ks == j) continue ;
+                        if(ks == ps) continue ;
+                        if(ps == j) continue ;
+                        if(ps == cs) continue;
+                        if(ks == cs) continue;
+                        if(j == cs) continue;
+                        bool o1 = ( i + mat1.array[ci][cj] + 10 ) % 10== (mat1.array[ji][jj] + mat1.array[ki][kj] + mat1.array[pi][pj] +10) % 10 ;
+                        bool o2 = ( i + mat1.array[pi][pj] + mat1.array[ci][cj] + 10 ) % 10== (mat1.array[ji][jj] + mat1.array[ki][kj] +10) % 10 ;
+                        for(int k = 0;k < 4;k ++) {
+                            make_mat(DRAGON2,matb);
+                            if(o1 && (mat1.array[ji][jj] + mat1.array[ki][kj] + mat1.array[pi][pj] +10) % 10 == (mat1.array[3][k] + mat1.array[ci][cj] + 10 ) % 10){
+                                while(DRAGON >= 0) {
+                                    make_mat(DRAGON,matb);
+                                    if((mat1.array[ji][jj] + mat1.array[ki][kj] + mat1.array[pi][pj] +10) % 10 == (mat1.array[3][k] + mat1.array[ci][cj] + 10 ) % 10)
                                     {
-                                        if(i == p&&j==q)
-                                            continue;
-                                        if(k == p&&m ==q)
-                                            continue;
-                                        if(n == p&&o == q)
-                                            continue;
-                                        if(is_way(num,start,gap,cmp,6,i,j,k,m,n,o,p,q,3,pos,-1,-1))
-                                        {
-                                               str1[0] = maper[i][j];
-                                               str1[1] = maper[k][m];
-                                               str2[0] = maper[n][o];
-                                               str2[1] = maper[p][q];
-                                               str2[2] = maper[3][pos];
-                                               return 1;
-                                        }
+
+                                        cmp++;
+                                    }else {
+                                        break;
                                     }
                                 }
+                                str1[0] = k + 13;
+                                str1[1] = cs;
+                                str1[2] = -1;
+                                str2[0] = ps;
+                                str2[1] = ks;
+                                str2[2] = j;
+                                save(db,str1,str2,i,gap,cmp,k,start,mode);
                             }
-                        }
-                    }
-                }
-            }
-        }
-        return -1;
-}
+                            cmp = 2;
 
-int Drawabler::ThreeToOne(int num,int start,int gap,int cmp,int pos)
-{
-   for(int i = 0;i<MAXSIZE-1;i++)
-        {
-            for(int j = 0;j<MAXSIZE;j++)
-            {
-                for(int k = 0;k<MAXSIZE-1;k++)
-                {
-                    for(int m = 0;m<MAXSIZE;m++)
-                    {
-                        if(i == k&&j==m)
-                            continue;
-                        for(int n = 0;n<MAXSIZE-1;n++)
-                        {
-                            for(int o = 0;o<MAXSIZE;o++)
-                            {
-                                if(i == n&&j== o)
-                                    continue;
-                                if(k == n&&m == o)
-                                    continue;
-                                if(is_way(num,start,gap,cmp,7,i,j,k,m,n,o,3,pos,-1,-1,-1,-1))
-                                {
-                                       str1[0] = maper[i][j];
-                                       str1[1] = maper[k][m];
-                                       str1[2] = maper[n][o];
-                                       str2[0] = maper[3][pos];
-                                       return 1;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return -1;
-}
-
-int Drawabler::ThreeToTwo(int num,int start,int gap,int cmp,int pos)
-{
-    for(int i = 0;i<MAXSIZE-1;i++)
-        {
-            for(int j = 0;j<MAXSIZE;j++)
-            {
-                for(int k = 0;k<MAXSIZE-1;k++)
-                {
-                    for(int m = 0;m<MAXSIZE;m++)
-                    {
-                        if(i == k&&j==m)
-                            continue;
-                        for(int n = 0;n<MAXSIZE-1;n++)
-                        {
-                            for(int o = 0;o<MAXSIZE;o++)
-                            {
-                                if(i == n&&j== o)
-                                    continue;
-                                if(k == n&&m == o)
-                                    continue;
-                                for(int p = 0;p<MAXSIZE-1;p++)
-                                {
-                                    for(int q = 0;q<MAXSIZE;q++)
+                            if(o2 && (mat1.array[ji][jj] + mat1.array[ki][kj] +10) % 10 == (mat1.array[3][k] + mat1.array[ci][cj] + 10 +  mat1.array[pi][pj] ) % 10){
+                                while(DRAGON >= 0) {
+                                    make_mat(DRAGON,matb);
+                                    if((mat1.array[ji][jj] + mat1.array[ki][kj] +10) % 10 == (mat1.array[3][k] + mat1.array[ci][cj] + 10 + mat1.array[pi][pj] ) % 10)
                                     {
-                                        if(i == p&&j==q)
-                                            continue;
-                                        if(k == p&&m ==q)
-                                            continue;
-                                        if(n == p&&o == q)
-                                            continue;
-                                        if(is_way(num,start,gap,cmp,8,i,j,k,m,n,o,p,q,3,pos,-1,-1))
-                                        {
-                                               str1[0] = maper[i][j];
-                                               str1[1] = maper[k][m];
-                                               str1[2] = maper[n][o];
-                                               str2[0] = maper[p][q];
-                                               str2[1] = maper[3][pos];
-                                               return 1;
-                                        }
+
+                                        cmp++;
+                                    }else {
+                                        break;
                                     }
                                 }
+                                str1[0] = k + 13;
+                                str1[1] = cs;
+                                str1[2] = ps;
+                                str2[0] = ks;
+                                str2[1] = j;
+                                str2[2] = -1;
+                                save(db,str1,str2,i,gap,cmp,k,start,mode);
                             }
+                            cmp = 2;
                         }
                     }
                 }
             }
         }
-        return -1;
-}
-
-
-int Drawabler::ThreeToThree(int num,int start,int gap,int cmp,int pos)
-{
-    for(int i = 0;i<MAXSIZE-1;i++)
-        {
-            for(int j = 0;j<MAXSIZE;j++)
-            {
-                for(int k = 0;k<MAXSIZE-1;k++)
-                {
-                    for(int m = 0;m<MAXSIZE;m++)
-                    {
-                        if(i == k&&j==m)
-                            continue;
-                        for(int n = 0;n<MAXSIZE-1;n++)
-                        {
-                            for(int o = 0;o<MAXSIZE;o++)
-                            {
-                                if(i == n&&j== o)
-                                    continue;
-                                if(k == n&&m == o)
-                                    continue;
-                                for(int p = 0;p<MAXSIZE-1;p++)
-                                {
-                                    for(int q = 0;q<MAXSIZE;q++)
-                                    {
-                                        if(i == p&&j==q)
-                                            continue;
-                                        if(k == p&&m ==q)
-                                            continue;
-                                        if(n == p&&o == q)
-                                            continue;
-                                        for(int r = 0;r<MAXSIZE-1;r++)
+        for(int j = 1;j <= 12; j++) { //3:3
+            for(int ks = j;ks <= 12; ks++) {
+                for(int ps = ks;ps <= 12; ps ++) {
+                    for(int cs = ps;cs <=12;cs ++) {
+                        for(int qs = cs;qs <= 12; qs ++) {
+                            make_matfirst(start - 3,matb);
+                            int ji = maptoi(j);
+                            int jj = maptoj(j);
+                            int ki = maptoi(ks);
+                            int kj = maptoj(ks);
+                            int pi = maptoi(ps);
+                            int pj = maptoj(ps);
+                            int ci = maptoi(cs);
+                            int cj = maptoj(cs);
+                            int qi = maptoi(qs);
+                            int qj = maptoj(qs);
+                            if(ks == j) continue ;
+                            if(ks == ps) continue ;
+                            if(ps == j) continue ;
+                            if(ps == cs) continue;
+                            if(ks == cs) continue;
+                            if(j == cs) continue;
+                            if(ks == qs) continue;
+                            if(ps == qs) continue;
+                            if(cs == qs) continue;
+                            bool o1 = ( i + mat1.array[ci][cj] + mat1.array[qi][qj]+ 10 ) % 10== (mat1.array[ji][jj] + mat1.array[ki][kj] + mat1.array[pi][pj] +10) % 10 ;
+                            for(int k = 0;k < 4;k ++) {
+                                make_mat(DRAGON2,matb);
+                                if(o1 && (mat1.array[ji][jj] + mat1.array[ki][kj] + mat1.array[pi][pj] +10) % 10 == (mat1.array[3][k] + mat1.array[ci][cj] + mat1.array[qi][qj] + 10 ) % 10){
+                                    while(DRAGON >= 0) {
+                                        make_mat(DRAGON,matb);
+                                        if((mat1.array[ji][jj] + mat1.array[ki][kj] + mat1.array[pi][pj] +10) % 10 == (mat1.array[3][k] + mat1.array[ci][cj] + mat1.array[qi][qj] + 10 ) % 10)
                                         {
-                                            for(int s = 0;s<MAXSIZE;s++)
-                                            {
-                                                if(i == r&&j==s)
-                                                    continue;
-                                                if(k == r&&m ==s)
-                                                    continue;
-                                                if(n == r&&o == s)
-                                                    continue;
-                                                if(p == r&&q==s)
-                                                    continue;
-                                                if(is_way(num,start,gap,cmp,9,i,j,k,m,n,o,p,q,r,s,3,pos))
-                                                {
-                                                       str1[0] = maper[i][j];
-                                                       str1[1] = maper[k][m];
-                                                       str1[2] = maper[n][o];
-                                                       str2[0] = maper[p][q];
-                                                       str2[1] = maper[r][s];
-                                                       str2[2] = maper[3][pos];
-                                                       return 1;
-                                                }
-                                            }
+
+                                            cmp++;
+                                        }else {
+                                            break;
                                         }
                                     }
+                                    str1[0] = k + 13;
+                                    str1[1] = cs;
+                                    str1[2] = qs;
+                                    str2[0] = ps;
+                                    str2[1] = ks;
+                                    str2[2] = j;
+                                    save(db,str1,str2,i,gap,cmp,k,start,mode);
                                 }
+                                cmp = 2;
+
                             }
                         }
                     }
                 }
-            }
-        }
-        return -1;
-}
-
-bool Drawabler::save(QSqlDatabase db, int *str1, int *str2, int num, int gap,int cmp,int pos,int start)
-{
-    if(!db.open())
-        return false;
-    QSqlQuery qsq;
-    qsq.prepare("insert into realdata1(num,data1,data2,data3,gap,cmp,pos,start) values (?,?,?,?,?,?,?,?)");
-    qsq.addBindValue(num);
-    qsq.addBindValue(str1[0]);
-    qsq.addBindValue(str1[1]);
-    qsq.addBindValue(str1[2]);
-    qsq.addBindValue(gap);
-    qsq.addBindValue(cmp);
-    qsq.addBindValue(pos);
-    qsq.addBindValue(start);
-    qsq.exec();
-    QSqlQuery qsq1;
-    qsq1.prepare("insert into realdata2(num,data1,data2,data3,gap,cmp,pos,start) values (?,?,?,?,?,?,?,?)");
-    qsq1.addBindValue(num);
-    qsq1.addBindValue(str2[0]);
-    qsq1.addBindValue(str2[1]);
-    qsq1.addBindValue(str2[2]);
-    qsq1.addBindValue(gap);
-    qsq1.addBindValue(cmp);
-    qsq1.addBindValue(pos);
-    qsq1.addBindValue(start);
-    qsq1.exec();
-    return true;
-}
-
-bool Drawabler::is_way(int num,int start,int gap,int cmp,int mode,int ax,int ay,int bx,int by,int cx,int cy,int dx,int dy,int ex,int ey,int fx,int fy)
-{
-    int add = MAXSIZE;
-    int a = -3;
-    int n1 = 0;
-    int n2 = 0;
-    int n3 = 0;
-    int n4 = 0;
-    int n5 = 0;
-    int n6 = 0;
-    int n7 = 0;
-    int n8 = 0;
-    int n9 =0;
-    bool o1 = mat1.array[ax +  start - MAXSIZE+1][ay] == num;
-    bool o2 = mat1.array[ax +  start - MAXSIZE+1][ay] == (10+num + mat1.array[bx +  start - MAXSIZE+1][by])%10;
-    bool o3 = mat1.array[ax +  start - MAXSIZE+1][ay] == (10+num + mat1.array[bx +  start - MAXSIZE+1][by]+mat1.array[cx +  start - MAXSIZE+1][cy])%10;
-    bool o4 = (mat1.array[ax +  start - MAXSIZE+1][ay] + mat1.array[bx +  start - MAXSIZE+1][by] + 10)%10== num;
-    bool o5 = (mat1.array[ax +  start - MAXSIZE+1][ay] + mat1.array[bx +  start - MAXSIZE+1][by] + 10)%10 == (10+num + mat1.array[cx +  start - MAXSIZE+1][cy])%10;
-    bool o6 = (mat1.array[ax +  start - MAXSIZE+1][ay] + mat1.array[bx +  start - MAXSIZE+1][by] + 10)%10 == (10+num + mat1.array[cx +  start - MAXSIZE+1][cy]+mat1.array[dx +  start - MAXSIZE+1][dy])%10;
-    bool o7 = (mat1.array[ax + start - MAXSIZE+1][ay] + mat1.array[bx +  start - MAXSIZE+1][by] +mat1.array[cx +  start - MAXSIZE+1][cy]+ 10)%10 == num;
-    bool o8 = (mat1.array[ax +  start - MAXSIZE+1][ay] + mat1.array[bx +  start - MAXSIZE+1][by] +mat1.array[cx +  start - MAXSIZE+1][cy]+ 10)%10 == (num + 10 + mat1.array[dx +  start - MAXSIZE+1][dy])%10;
-    bool o9 = (mat1.array[ax +  start - MAXSIZE+1][ay] + mat1.array[bx +  start - MAXSIZE+1][by] +mat1.array[cx +  start - MAXSIZE+1][cy]+ 10)%10 == (num + 10 + mat1.array[dx +  start - MAXSIZE+1][dy] + mat1.array[ex +  start - MAXSIZE+1][ey])%10;
-    for(int i = 1;i<cmp;i++)
-    {
-        if(mode == 1&&o1)
-        {
-            if(ax + start - (add+gap)*(i)+a<0||bx + start - (add+gap)*(i) +a<0)
-                return false;
-            bool ok1 = mat1.array[ax + start - (add+gap)*i +a ][ay] == mat1.array[bx + start - (add+gap)*i+a][by];
-            bool ok2 = mat1.array[ax + start - (add+gap)*(i+1)][ay] == mat1.array[bx + start - (add+gap)*(i+1)+a][by];
-            if(!ok1||!ok2)
-                return false;
-            if(ok1&&ok2)
-            {
-                 n1++;
-            }
-            if(n1==cmp-1&&i==cmp-1)
-            {
-                return true;
-            }
-        }
-        if(mode == 4&&o4)
-        {
-            if(ax + start - (add+gap)*(i)+a<0||bx + start - (add+gap)*(i)+a<0||cx + start - (add+gap)*(i)+a<0)
-                return false;
-            bool ok1 = (mat1.array[ax + start - (gap+add)*i+a][ay] +mat1.array[bx + start - (gap+add)*i+a][by] + 10)%10 == mat1.array[cx + start - (gap+add)*i+a ][cy];
-            bool ok2 = (mat1.array[ax + start - (gap+add)*(i+1)+a][ay] +mat1.array[bx + start - (gap+add)*(i+1)+a][by] + 10)%10 == mat1.array[cx + start - (gap+add)*(i+1)+a ][cy];
-            if(!ok1||!ok2)
-                return false;
-            if(ok1&&ok2)
-            {
-                 n4++;
-            }
-            if(n4==cmp-1&&i==cmp-1)
-            {
-                return true;
-            }
-        }
-        if(mode == 7&&o7)
-        {
-            if(ax + start - (add+gap)*(i)+a <0||bx + start - (add+gap)*(i)+a<0||cx + start - (add+gap)*(i)+a<0||dx + start - (MAXSIZE+gap)*(i) +a<0)
-                return false;
-            bool ok1 = (mat1.array[ax + start - (add+gap)*i +a][ay] +mat1.array[bx + start - (add+gap)*i+a ][by] + mat1.array[cx + start - (add+gap)*i +a][cy] + 10)%10== mat1.array[dx + start - (add+gap)*i+a ][dy];
-            bool ok2 =  (mat1.array[ax + start - (add+gap)*(i+1)+a][ay] +mat1.array[bx + start - (add+gap)*(i+1)+a ][by] + mat1.array[cx + start - (add+gap)*(i+1)+a][cy] + 10)%10== mat1.array[dx + start - (add+gap)*(i+1)+a][dy];
-            if(!ok1||!ok2)
-                return false;
-            if(ok1&&ok2)
-            {
-                 n7++;
-            }
-            if(n7==cmp-1&&i==cmp-1)
-            {
-                return true;
-            }
-        }
-        if(mode == 2&&o2)
-        {
-            if(ax + start - (add+gap)*(i)+a<0||bx + start - (add+gap)*(i)+a <0||cx + start - (add+gap)*(i)+a <0)
-                return false;
-            bool ok1 = mat1.array[ax + start - (add+gap)*i +a][ay] == (10+mat1.array[bx + start - (add+gap)*i + a][by] + mat1.array[cx + start - (MAXSIZE+gap)*i +a][cy])%10;
-            bool ok2 = mat1.array[ax + start - (add+gap)*(i+1) +a][ay] == (10+mat1.array[bx + start - (add+gap)*(i+1) + a][by] + mat1.array[cx - start + (MAXSIZE+gap)*(i+1) +a][cy])%10;
-            if(!ok1||!ok2)
-                return false;
-            if(ok1&&ok2)
-            {
-                 n2++;
-            }
-            if(n2==cmp-1&&i==cmp-1)
-            {
-                return true;
-            }
-        }
-        if(mode == 5&&o5)
-        {
-            if(ax + start - (add+gap)*(i)+a<0||bx + start - (add+gap)*(i)+a <0||cx + start - (MAXSIZE+gap)*(i)+a<0||dx + start - (MAXSIZE+gap)*(i)+a<0)
-               return false;
-            bool ok1 = (mat1.array[ax + start - (add+gap)*i+a][ay] +mat1.array[bx + start - (add+gap)*i+a][by] + 10)%10 == (mat1.array[cx + start - (MAXSIZE+gap)*i+a][cy] +mat1.array[dx + start - (add+gap)*i+a][dy] + 10)%10;
-            bool ok2 = (mat1.array[ax + start - (add+gap)*(i+1)+a][ay] +mat1.array[bx + start - (add+gap)*(i+1)+a][by] + 10)%10 == (mat1.array[cx + start - (MAXSIZE+gap)*(i+1)+a][cy] +mat1.array[dx + start - (add+gap)*(i+1)+a][dy] + 10)%10;
-            if(!ok1||!ok2)
-                return false;
-            if(ok1&&ok2)
-            {
-                 n5++;
-            }
-            if(n5==cmp-1&&i==cmp-1)
-            {
-                return true;
-            }
-        }
-        if(mode == 8&&o8)
-        {
-            if(ax + start - (add+gap)*(i)+a<0||bx + start - (add+gap)*(i)+a<0||cx + start - (add+gap)*(i)+a <0||dx + start - (add+gap)*(i)+a<0||ex + start - (add+gap)*(i)+a<0)
-               return false;
-            bool ok1 = (10 + mat1.array[ax + start - (add+gap)*i+a][ay] + mat1.array[bx + start - (add+gap)*i+a][by] + mat1.array[cx + start - (add+gap)*i+a][cy])%10 == (mat1.array[dx + start - (add+gap)*i+a ][dy] + 10 + mat1.array[ex + start - (add+gap)*i +a][ey])%10;
-            bool ok2 = (mat1.array[ax + start - (add+gap)*(i+1)+a][ay] + 10+mat1.array[bx + start - (add+gap)*(i+1)+a][by]+ mat1.array[cx + start - (add+gap)*(i+1)+a][cy])%10 == (mat1.array[dx + start - (add+gap)*(i+1) +a][dy] + 10 + mat1.array[ex + start - (add+gap)*(i+1)+a ][ey])%10;
-            if(!ok1||!ok2)
-                return false;
-            if(ok1&&ok2)
-            {
-                 n8++;
-            }
-            if(n8==cmp-1&&i==cmp-1)
-            {
-                return true;
-            }
-        }
-        if(mode == 3&&o3)
-        {
-            if(ax + start - (add+gap)*(i)+a<0||bx + start - (add+gap)*(i) +a<0||cx + start - (add+gap)*(i)+a <0||dx + start - (add+gap)*(i)+a <0)
-                return false;
-            bool ok1 = mat1.array[ax + start - (add+gap)*i+a][ay] == (mat1.array[bx + start - (add+gap)*i+a ][by] + mat1.array[cx + start - (add+gap)*i+a][cy] + mat1.array[dx + start - (add+gap)*i+a][dy]+10)%10;
-            bool ok2 = mat1.array[ax + start - (add+gap)*(i+1)+a][ay] ==( mat1.array[bx + start - (add+gap)*(i+1)+a][by] + mat1.array[cx + start - (add+gap)*(i+1)+a ][cy] == mat1.array[dx + start - (add+gap)*(i+1) +a][dy]+10)%10;
-            if(!ok1||!ok2)
-                return false;
-            if(ok1&&ok2)
-            {
-                 n3++;
-            }
-            if(n3==cmp-1&&i==cmp-1)
-            {
-                return true;
-            }
-        }
-        if(mode == 6&&o6)
-        {
-            if(ax + start - (add+gap)*(i) +a<0||bx + start - (add+gap)*(i)+a<0||cx + start - (add+gap)*(i)+a<0||dx + start - (add+gap)*(i) +a<0||ex + start - (add+gap)*(i)+a<0)
-                return false;
-            bool ok1 = (10 + mat1.array[ax + start - (add+gap)*i+a][ay] + mat1.array[bx + start - (add+gap)*i+a][by] )%10 == (mat1.array[cx + start - (add+gap)*i+a][cy] + mat1.array[dx + start - (add+gap)*i+a][dy] + 10 + mat1.array[ex + start - (add+gap)*i +a][ey])%10;
-            bool ok2 = (mat1.array[ax + start - (add+gap)*(i+1)+a][ay] + 10+mat1.array[bx + start - (add+gap)*(i+1)+a ][by])%10==( mat1.array[cx + start - (add+gap)*(i+1) +a][cy] + mat1.array[dx + start - (add+gap)*(i+1)+a][dy] + 10 + mat1.array[ex + start - (add+gap)*(i+1)+a ][ey])%10;
-            if(!ok1||!ok2)
-                return false;
-            if(ok1&&ok2)
-            {
-                 n6++;
-            }
-            if(n6==cmp-1&&i==cmp-1)
-            {
-                return true;
-            }
-        }
-        if(mode == 9&&o9)
-        {
-            if(ax + start - (add+gap)*(i) +a<0||bx + start - (add+gap)*(i)+a<0||cx + start - (add+gap)*(i)+a <0||dx + start - (add+gap)*(i) +a<0||ex + start - (add+gap)*(i)+a <0||fx + start - (add+gap)*(i)+a <0)
-                return false;
-            bool ok1 = (10 + mat1.array[ax + start - (add+gap)*i +a][ay] + mat1.array[bx + start - (add+gap)*i+a ][by] + mat1.array[cx + start - (add+gap)*i +a][cy])%10 ==( mat1.array[dx + start - (add+gap)*i+a][dy] + 10 + mat1.array[ex + start - (add+gap)*i+a][ey] + mat1.array[fx + start - (add+gap)*i+a ][fy])%10;
-            bool ok2 = (mat1.array[ax + start - (add+gap)*(i+1) +a][ay] + 10+mat1.array[bx+start - (add+gap)*(i+1)+a ][by]+  mat1.array[cx + start - (add+gap)*(i+1) +a][cy])%10 == ( mat1.array[dx + start - (add+gap)*(i+1)+a ][dy]+ 10+ mat1.array[ex + start - (add+gap)*(i+1)+a ][ey]+mat1.array[fx + start - (add+gap)*(i+1)+a ][fy])%10;
-            if(!ok1||!ok2)
-                return false;
-            if(ok1&&ok2)
-            {
-                 n9++;
-            }
-            if(n9==cmp-1&&i==cmp-1)
-            {
-                return true;
             }
         }
     }
     return false;
 }
 
-
-void Drawabler::Find(QSqlDatabase db,int gap,int cmp,int start)
+bool Drawabler::save(QSqlDatabase db, int *str1, int *str2, int num, int gap,int cmp,int pos,int start,int mode)
 {
-    for(int i = 0;i<9;i++)
-    {
-        for(int j = 0;j<MAXSIZE;j++)
-        {
-            qDebug()<<i<<endl;
-            if(OneToOne(i,start,gap,cmp,j) == 1)
-            {
-                save(db,str1,str2,i,gap,cmp,j,start);
-                memset(str1,-1,sizeof(str1));
-                memset(str2,-1,sizeof(str2));
-            }
-            if(OneToThree(i,start,gap,cmp,j) == 1)
-            {
-                save(db,str1,str2,i,gap,cmp,j,start);
-                memset(str1,-1,sizeof(str1));
-                memset(str2,-1,sizeof(str2));
-            }
-            if(OneToTwo(i,start,gap,cmp,j) == 1)
-            {
-                save(db,str1,str2,i,gap,cmp,j,start);
-                memset(str1,-1,sizeof(str1));
-                memset(str2,-1,sizeof(str2));
-            }
-            if(TwoToOne(i,start,gap,cmp,j) == 1)
-            {
-                save(db,str1,str2,i,gap,cmp,j,start);
-                memset(str1,-1,sizeof(str1));
-                memset(str2,-1,sizeof(str2));
-            }
-            if(TwoToTwo(i,start,gap,cmp,j) == 1)
-            {
-                save(db,str1,str2,i,gap,cmp,j,start);
-                memset(str1,-1,sizeof(str1));
-                memset(str2,-1,sizeof(str2));
-            }
-            if(TwoToThree(i,start,gap,cmp,j) == 1)
-            {
-                save(db,str1,str2,i,gap,cmp,j,start);
-                memset(str1,-1,sizeof(str1));
-                memset(str2,-1,sizeof(str2));
-            }
-            if(ThreeToOne(i,start,gap,cmp,j) == 1)
-            {
-                save(db,str1,str2,i,gap,cmp,j,start);
-                memset(str1,-1,sizeof(str1));
-                memset(str2,-1,sizeof(str2));
-            }
-            if(ThreeToTwo(i,start,gap,cmp,j) == 1)
-            {
-                save(db,str1,str2,i,gap,cmp,j,start);
-                memset(str1,-1,sizeof(str1));
-                memset(str2,-1,sizeof(str2));
-            }
-            if(ThreeToThree(i,start,gap,cmp,j) == 1)
-            {
-                save(db,str1,str2,i,gap,cmp,j,start);
-                memset(str1,-1,sizeof(str1));
-                memset(str2,-1,sizeof(str2));
-            }
-        }
-    }
+    if(!db.open() || cmp <= 2)
+        return false;
+    QSqlQuery qsq;
+    qsq.prepare("insert into realdata1(num,data1,data2,data3,gap,cmp,pos,start,mode,kind) values (?,?,?,?,?,?,?,?,?,?)");
+    qsq.addBindValue(num);
+    qsq.addBindValue(this->str1[0]);
+    qsq.addBindValue(this->str1[1]);
+    qsq.addBindValue(this->str1[2]);
+    qsq.addBindValue(gap);
+    qsq.addBindValue(cmp);
+    qsq.addBindValue(pos+mode);
+    qsq.addBindValue(this->re_start);
+    qsq.addBindValue(mode);
+    qsq.addBindValue(kind);
+    qsq.exec();
+    qDebug()<<qsq.lastError();
+    QSqlQuery qsq1;
+    qsq1.prepare("insert into realdata2(num,data1,data2,data3,gap,cmp,pos,start,mode,kind) values (?,?,?,?,?,?,?,?,?,?)");
+    qsq1.addBindValue(num);
+    qsq1.addBindValue(this->str2[0]);
+    qsq1.addBindValue(this->str2[1]);
+    qsq1.addBindValue(this->str2[2]);
+    qsq1.addBindValue(gap);
+    qsq1.addBindValue(cmp);
+    qsq1.addBindValue(pos+mode);
+    qsq1.addBindValue(this->re_start);
+    qsq1.addBindValue(mode);
+    qsq1.addBindValue(kind);
+    qsq1.exec();
+    qDebug()<<qsq1.lastError();
+    memset(this->str1,-1,sizeof(this->str1));
+    memset(this->str2,-1,sizeof(this->str2));
+    return true;
 }
+
+
