@@ -2,7 +2,7 @@
 
 void RealQThread::begin()
 {
-    run();
+    run(); 
 }
 
 void RealQThread::getdw(Drawabler *dw) {
