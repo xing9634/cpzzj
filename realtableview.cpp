@@ -10,22 +10,25 @@ RealTableView::RealTableView(QWidget *parent):QTableView(parent)
 }
 void RealTableView::paintEvent(QPaintEvent *e)
 {
-    QColor color[] = {Qt::red,Qt::green,Qt::blue,Qt::yellow};
-    QColor color1[] = {Qt::yellow,Qt::blue,Qt::green,Qt::red};
+    QColor color[] = {Qt::darkMagenta,Qt::red,Qt::blue,Qt::green};
+    QColor color1[] = {Qt::darkMagenta,Qt::red,Qt::blue,Qt::green};
     QPainter painter(this->viewport());
     painter.setRenderHint(QPainter::Antialiasing);
     QPen penm;
     penm.setWidth(3);
-    painter.drawLine(this->columnViewportPosition(2),0,this->columnViewportPosition(2),this->size().height());
-    painter.drawLine(this->columnViewportPosition(6),0,this->columnViewportPosition(6),this->size().height());
+    painter.drawLine(0,this->rowViewportPosition(0),this->size().width(),this->rowViewportPosition(0));
+    painter.drawLine(this->columnViewportPosition(0),0,this->columnViewportPosition(0),this->size().height());
+    painter.drawLine(this->columnViewportPosition(1),0,this->columnViewportPosition(1),this->size().height());
+    painter.drawLine(this->columnViewportPosition(5),0,this->columnViewportPosition(5),this->size().height());
+    painter.drawLine(this->size().width(),0,this->size().width(),this->size().height());
     for(int i = 0;i<rowcount;i+=4)
     {
         painter.drawLine(0,this->rowViewportPosition(i),this->size().width(),this->rowViewportPosition(i));
     }
-    for(int j = 0;j<4;j++)
+    for(int j = 0;j<9;j++)
      {
-            magicTime(painter,line1[j],color[ (colored + 4 ) % 4 ]);
-            magicTime(painter,line2[j],color1[ (colored + 4 ) % 4 ]);
+            magicTime(painter,line1[j],color[ (colored + j ) % 4 ]);
+            magicTime(painter,line2[j],color1[ (colored + j ) % 4 ]);
      }
     QTableView::paintEvent(e);
 }
